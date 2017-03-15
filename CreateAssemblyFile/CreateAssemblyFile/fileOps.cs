@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace CreateAssemblyFile
 {
-    class fileOps
+    class FileOps
     {
         
-        public static void initializeMain()
+        public FileOps()
         //initialize fileOps
         {
-            Console.WriteLine("Main Initialize");
+            Console.WriteLine("FileOps Initialize");
 
         }
         //open file for read

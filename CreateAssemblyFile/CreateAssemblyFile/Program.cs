@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 ///     File Operations & Methods
 ///     means of creating a file handler, opening it etc.
 /// 
-/// Class Assembler
+/// Class AssemblerProcessor
 ///     parse the file twice
 ///     
 ///     
@@ -24,7 +24,6 @@ namespace CreateAssemblyFile
 {
     class program
    {
-        enum Parser_CommandType { Parser_NO_COMMAND = 0, Parser_A_COMMAND, Parser_C_COMMAND, Parser_L_COMMAND }; 
         static void Main(string[] args)
         {
             string filename;
@@ -32,7 +31,7 @@ namespace CreateAssemblyFile
             string[] outputstrings = { };
 
 
-            fileOps assemblerfile = new fileOps();
+            FileOps assemblerfile = new FileOps();
 
             // Get Filename
 
@@ -57,15 +56,23 @@ namespace CreateAssemblyFile
                 }
 
             }
-            assemblerfile.readFile(filename, "assembler");
+
+
+            string[] assemblerinput;
+            assemblerinput = assemblerfile.readFile(filename, "assembler");
 
             // create Assembler instance
-             
+
             // do assembler pass1
+            AssemblerProcessor assembleHackFile = new AssemblerProcessor(assemblerinput);
+            assembleHackFile.ParseOne();
+
             // Do assembler pass2
+            assembleHackFile.ParseTwo();
+            outputstrings = assembleHackFile.filecontents;
             
             // Create outputfile.hack
-            fileOps hackfile = new fileOps();
+            FileOps hackfile = new FileOps();
             hackfile.writeFile(filename, "hack", outputstrings);
 
 
