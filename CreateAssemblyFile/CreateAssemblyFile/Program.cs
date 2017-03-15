@@ -28,7 +28,7 @@ namespace CreateAssemblyFile
         {
             string filename;
             filename = "";
-            string[] outputstrings = { };
+            List<string> outputLines = new List<string>();
 
 
             FileOps assemblerfile = new FileOps();
@@ -58,22 +58,22 @@ namespace CreateAssemblyFile
             }
 
 
-            string[] assemblerinput;
-            assemblerinput = assemblerfile.readFile(filename, "assembler");
+            List<string> assemblerInput = new List<string>();
+            assemblerInput = assemblerfile.readFile(filename, "assembler");
 
             // create Assembler instance
 
             // do assembler pass1
-            AssemblerProcessor assembleHackFile = new AssemblerProcessor(assemblerinput);
+            AssemblerProcessor assembleHackFile = new AssemblerProcessor(assemblerInput);
             assembleHackFile.ParseOne();
 
             // Do assembler pass2
             assembleHackFile.ParseTwo();
-            outputstrings = assembleHackFile.filecontents;
+            outputLines = assembleHackFile.outputfile;
             
             // Create outputfile.hack
             FileOps hackfile = new FileOps();
-            hackfile.writeFile(filename, "hack", outputstrings);
+            hackfile.writeFile(filename, "hack", outputLines);
 
 
             Console.ReadLine();

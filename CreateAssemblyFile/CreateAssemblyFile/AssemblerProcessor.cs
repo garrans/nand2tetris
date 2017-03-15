@@ -8,12 +8,11 @@ namespace CreateAssemblyFile
 {
     class AssemblerProcessor
     {
-        public string[] filecontents;
-        public string[] outputfile;
+        public List<string> filecontents;
+        public List<string> outputfile;
         enum Parser_CommandType { Parser_NO_COMMAND = 0, Parser_A_COMMAND, Parser_C_COMMAND, Parser_L_COMMAND }; 
-
-        
-        public AssemblerProcessor(string[] filecontents)
+ 
+        public AssemblerProcessor(List<string> filecontents)
         {
             this.filecontents = filecontents;
             foreach (string line in filecontents)
@@ -24,13 +23,16 @@ namespace CreateAssemblyFile
         public void ParseOne()
         {
             Console.WriteLine("ParseOne");
-        }
+            foreach (string line in filecontents)
+            {
+                Console.WriteLine(line);
 
+            }
+        }
         public void ParseTwo()
         {
             Console.WriteLine("ParseTwo");
             outputfile = filecontents;
         }
-
     }
 }
