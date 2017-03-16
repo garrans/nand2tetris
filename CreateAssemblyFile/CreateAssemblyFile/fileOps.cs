@@ -49,7 +49,7 @@ namespace CreateAssemblyFile
                         while (sr.Peek() >= 0)
                         {
                             filelines.Add(sr.ReadLine());
-                            Console.WriteLine(filelines[0]);
+                            // Console.WriteLine(filelines[0]);
                             i = i + 1;
                         }
                     }

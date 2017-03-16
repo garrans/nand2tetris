@@ -1,0 +1,24 @@
+n = 0xE000; // The first 3 bits are 1
+int compValue = 0;
+if (CTables.compTable.ContainsKey(comp))
+{
+compValue = CTables.compTable[comp];
+compValue = compValue << 6;
+}
+…
+int destValue = 0;
+if (dest != null)
+{
+if (CTables.destTable.ContainsKey(dest))
+{
+destValue = CTables.destTable[dest];
+destValue = destValue << 3;
+}
+…
+int jumpValue = 0;
+if (jump != null)
+{
+if (CTables.jumpTable.ContainsKey(jump))
+{
+jumpValue = CTables.jumpTable[jump];
+}
