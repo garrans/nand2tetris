@@ -48,9 +48,13 @@ namespace CreateAssemblyFile
                         int i = 0;
                         while (sr.Peek() >= 0)
                         {
-                            filelines.Add(sr.ReadLine());
-                            // Console.WriteLine(filelines[0]);
-                            i = i + 1;
+                            string temp = StripWhiteSpace(sr.ReadLine());
+                            if (temp.Length>0)
+                            {
+                                filelines.Add(temp);
+                                Console.WriteLine(filelines[i]);
+                                i = i + 1;
+                            }
                         }
                     }
                 }
@@ -74,8 +78,37 @@ namespace CreateAssemblyFile
         //write line
 
 
-       //` public static fileOps assemblerfile { get; private set; }
-
-
+        public static string StripWhiteSpace(string codeline)
+        {
+            // Strip comments and white space.
+            char[] outTemp = new char[codeline.Length]; // need a char array since strings are read-only
+                                                    // j is our non-whitespace index
+            int j = 0;
+            for (int i = 0; i < codeline.Length; i++)
+            {
+                if (codeline[i] == '/')
+                {
+                    if (i == codeline.Length - 2) // have to do this first so we don't get an out of bounds
+                                              //error if the "//" is at the end of the codeline
+                    {
+                        // end of codeline "//"; done with this codeline
+                        break;
+                    }
+                    else if (codeline[i + 1] == '/')
+                    {
+                        // not at end of codeline but still a comment, so ignore the rest of the codeline
+                        break;
+                    }
+                } // not a comment, keep going with this codeline
+                if (!char.IsWhiteSpace(codeline, i))
+                {
+                    outTemp[j] = codeline[i]; // only copy if it's not whitespace
+                    j++;
+                }
+            }
+            string temp = new string(outTemp);
+            temp = temp.Substring(0, j);
+            return temp;
+        }
     }
 }

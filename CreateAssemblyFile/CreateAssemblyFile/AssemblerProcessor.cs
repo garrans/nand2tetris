@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,51 +9,264 @@ namespace CreateAssemblyFile
 {
     class AssemblerProcessor
     {
-        
         public List<string> filecontents;
         public List<string> outputfile;
-        enum Parser_CommandType { Parser_NO_COMMAND = 0, Parser_A_COMMAND, Parser_C_COMMAND, Parser_L_COMMAND };
+        public enum Parser_CommandType { Parser_NO_COMMAND = 0, Parser_A_COMMAND, Parser_C_COMMAND, Parser_L_COMMAND };
 
         public AssemblerProcessor(List<string> filecontents)
         {
-            this.filecontents = filecontents;
             int i = 0;
+            this.filecontents = filecontents;
+            i = filecontents.Count;
+            Console.WriteLine("There are {0} lines in the input file", i);
+
+            /*
             foreach (string line in filecontents)
             {
                 // Console.WriteLine(line);
                 i += 1;
-
-            }
-
-            Console.WriteLine("There are {0} lines in the input file", i);
+            } 
+            */
         }
+
+        public Parser_CommandType command_type(string line)
+        {
+
+            char firstchar = line[0];
+
+            if (firstchar == '@')
+            {
+                //Console.Write("A Command");
+                return Parser_CommandType.Parser_A_COMMAND;
+            }
+            else
+            {
+                if (line.Contains('=') | line.Contains(";"))
+                {
+                    //Console.Write("C Command");
+                    return Parser_CommandType.Parser_C_COMMAND;
+                }
+                else
+                {
+                    //Console.Write("no command");
+                    return Parser_CommandType.Parser_NO_COMMAND;
+                }
+            }
+            
+            /*
+            switch (firstchar)
+            {
+                case '@':
+                    Console.Write("A Command");
+                    return Parser_CommandType.Parser_A_COMMAND;
+                case '0':
+                    Console.Write("C Command");
+                    return Parser_CommandType.Parser_C_COMMAND;
+                default:
+                    Console.Write("no command");
+                    return Parser_CommandType.Parser_NO_COMMAND;
+            }
+            */
+
+        }
+
         public void ParseOne()
         {
+            int romaddr = 0;
+
             Console.WriteLine("ParseOne");
+
             foreach (string line in filecontents)
             {
-                Console.WriteLine(line);
-                SymbolTable.addEntry()
-
+                if (line.Contains("("))
+                {
+                    string substring = line.Substring(1, line.IndexOf(")")-1);
+                    Console.WriteLine("Found label: {0} at ROM Address {1}", substring, romaddr);
+                    SymbolTable.addEntry(substring, romaddr);
+                }
+                else
+                {
+                    romaddr += 1;
+                }
             }
+            foreach (string key in SymbolTable.symbolTable.Keys) 
+            {
+                Console.WriteLine("{0}: {1}", key, SymbolTable.symbolTable[key]);
+            }
+/*            foreach (string item in SymbolTable)
+            {
+                Console.WriteLine("SymbolTable");
+
+            }*/
         }
+
         public void ParseTwo()
         {
-            Console.WriteLine("ParseTwo");
+            Console.WriteLine(" **************      ParseTwo");
+            List<int> outputfile = new List<int>();
+            int ramaddr = 15;
+            int romaddr = 0;
+
             // assemble the instruction as an integer.
             // n |= compValue | destValue | jumpValue;
             // convert the integer to text represt
-            outputfile = filecontents;
+
+            foreach (string line in filecontents)
+            {
+                Console.Write("ROM Address: {0} is an ", romaddr);
+                switch (command_type(line))
+                {
+                    case Parser_CommandType.Parser_A_COMMAND:
+                        int ramaddr_out = 0;
+                        outputfile.Insert(outputfile.Count, ParseACommand(line, ramaddr, out ramaddr_out));
+                        ramaddr = ramaddr_out;
+                        Console.WriteLine();
+                        break;
+
+                    case Parser_CommandType.Parser_C_COMMAND:
+                        Console.Write("C Command: ");
+                        Console.WriteLine(line);
+                        outputfile.Insert(outputfile.Count, ParseCCommand(line));
+                        break;
+
+                    case Parser_CommandType.Parser_L_COMMAND:
+                        Console.Write("L Command: ");
+                        Console.Write("***************** ERROR ERROR ********************** ");
+                        Console.WriteLine(line);
+                        break;
+
+                    case Parser_CommandType.Parser_NO_COMMAND:
+                        Console.Write("No Command");
+                        Console.WriteLine(line);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                ++romaddr;
+            }
 
         }
 
         public static int CodeTranslate(string codeline)
         {
             //translate the passed in Code
-            Console.WriteLine(" ");
+            Console.WriteLine(codeline);
             return 0;
         }
-    
+
+        private static int ParseCCommand(string line)
+        {
+            int outputCommand = 0; // int rep of binary command
+            int compValue = 0;
+            int destValue = 0;
+            int jumpValue = 0;
+            char[] splitters = { '=', ';' };
+            string[] splitLine;
+            string jumpString = "";
+            string compString = "";
+            bool dest = false;
+            //bool jump = false;
+
+            splitLine = line.Split(splitters);
+            if (line.Contains('='))
+            {
+                dest = true;
+                CTables.destTable.TryGetValue(splitLine[0],out destValue);
+                destValue = destValue << 3;
+            }
+            else
+            {
+                compString = splitLine[0];
+            }
+            if (line.Contains(';'))
+            {
+                //jump = true;
+                if (dest)
+                {
+                    jumpString = splitLine[2];
+                    compString = splitLine[1];
+                }
+                else
+                {
+                    jumpString = splitLine[1];
+                    compString = splitLine[0];
+                }
+                CTables.jumpTable.TryGetValue(jumpString,out jumpValue);
+            }
+            
+            CTables.compTable.TryGetValue(compString, out compValue);
+            compValue = compValue << 6;
+
+            outputCommand = 0xE000; // The first 3 bits are 1
+            outputCommand |= compValue | destValue | jumpValue;
+
+            return outputCommand;
+        }
+
+        public static int ParseACommand(string line, int ramaddr, out int ramaddr_out)
+        {
+
+
+            // stopping point
+            // todo
+            /* need to convert to binary using :
+             * Convert.ToString(MyVeryOwnByte, 2).PadLeft(8, '0');
+             * 
+             * before writing out binary values.
+             * which isn't done yet.
+
+
+            ramaddr_out = ramaddr;
+            Console.Write("A Command ");
+            //is it symbol or numeric?
+
+            if (line[1] == '-')
+            {
+                //is negative therefore an actual number
+                Console.Write("number");
+            }
+            else
+            {
+                if (IsDigitsOnly(line.Substring(1, line.Length - 1)))
+                {
+                    //actual number
+                    Console.Write("number");
+                }
+                else
+                {
+                    // its a symbol
+                    // check if in Symboltable, if not then add it as a RAM item
+                    // then write out the ram value
+                    int address = 0;
+                    string symbol = line.Substring(1, line.Length - 1);
+                    if (SymbolTable.symbolTable.ContainsKey(symbol))
+                    {
+                        SymbolTable.symbolTable.TryGetValue(symbol, out address);
+                    }
+                    else
+                    {
+                        SymbolTable.addEntry(symbol, ramaddr);
+                        //  add 1 to RAM
+                        ramaddr = ramaddr_out + 1;
+                    }
+                    SymbolTable.symbolTable.TryGetValue(symbol, out address);
+                    Console.WriteLine("Symbol {0} is at address {1}", symbol, address);
+                }
+            }
+            return 0;
+        }
+
+        static bool IsDigitsOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                    return false;
+            }
+            return true;
+        }
 
         public static string StripWhiteSpace(string codeline)
         {
@@ -86,38 +300,39 @@ namespace CreateAssemblyFile
             temp = temp.Substring(0, j);
             return temp;
         }
-
     }
 
     public class CTables
     {
-        public static Dictionary<string, int> compTable = new Dictionary<string, int>()
-        {
-            // a= 0
-            { "0", 0x2a},
-            {"1", 0x3f},
-            {"-1", 0x3a},
-            {"D", 0x0c},
-            {"!D", 0x0d},
-            {"-D", 0x0f},
-            {"D+1", 0x1f},
-            {"1+D", 0x1f},
 
-            {"D&A", 0x00},
-            {"A&D", 0x00},
-            {"D|A", 0x15},
-            {"A|D", 0x15},
-            // a = 1
-            {"M", 0x30+0x40},
-            {"!M", 0x31+0x40},
-            {"-M", 0x33+0x40},
-            {"M+1", 0x37+0x40},
-            {"1+M", 0x37+0x40},
-            {"M-1", 0x32+0x40},
-            //
-            {"D|M", 0x15+0x40},
-            {"M|D", 0x15+0x40}
-        };
+        public static Dictionary<string, int> compTable = new Dictionary<string, int>()
+
+            {
+                // a= 0
+                { "0", 0x2a},
+                {"1", 0x3f},
+                {"-1", 0x3a},
+                {"D", 0x0c},
+                {"!D", 0x0d},
+                {"-D", 0x0f},
+                {"D+1", 0x1f},
+                {"1+D", 0x1f},
+
+                {"D&A", 0x00},
+                {"A&D", 0x00},
+                {"D|A", 0x15},
+                {"A|D", 0x15},
+                // a = 1
+                {"M", 0x30+0x40},
+                {"!M", 0x31+0x40},
+                {"-M", 0x33+0x40},
+                {"M+1", 0x37+0x40},
+                {"1+M", 0x37+0x40},
+                {"M-1", 0x32+0x40},
+                //
+                {"D|M", 0x15+0x40},
+                {"M|D", 0x15+0x40}
+            };
     
     public static Dictionary<string, int> destTable = new Dictionary<string, int>()
         {

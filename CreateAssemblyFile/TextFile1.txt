@@ -22,3 +22,49 @@ if (CTables.jumpTable.ContainsKey(jump))
 {
 jumpValue = CTables.jumpTable[jump];
 }
+
+        //public static string ProcessACommand(string line, int ramaddr_in, out int ramaddr_out)
+        public static string ProcessACommand(string line, int ramaddr_in)
+        {
+            int ramaddr_out;
+            ramaddr_out = ramaddr_in;
+            Console.Write("A Command ");
+            //is it symbol or numeric?
+
+            if (line[1] == '-')
+            {
+                //is negative therefore an actual number
+                Console.Write("number");
+            }
+            else
+            {
+                if (IsDigitsOnly(line.Substring(1, line.Length - 1)))
+                {
+                    //actual number
+                    Console.Write("number");
+                }
+                else
+                {
+                    // its a symbol
+                    // check if in Symboltable, if not then add it as a RAM item
+                    // then write out the ram value
+                    int address = 0;
+                    string symbol = line.Substring(1, line.Length - 1);
+                    if (SymbolTable.symbolTable.ContainsKey(symbol))
+                    {
+                        SymbolTable.symbolTable.TryGetValue(symbol, out address);
+                    }
+                    else
+                    {
+                        SymbolTable.addEntry(symbol, ramaddr_in);
+                        //  add 1 to RAM
+                        ramaddr_in = ramaddr_out + 1;
+                    }
+                    SymbolTable.symbolTable.TryGetValue(symbol, out address);
+                    Console.WriteLine("Symbol {0} is at address {1}", symbol, address);
+                }
+
+                Console.Write("test");
+            }
+
+        }
