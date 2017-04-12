@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CreateAssemblyFile
 {
+
     class FileOps
     {
         
@@ -19,14 +20,34 @@ namespace CreateAssemblyFile
         //open file for writing
         public void writeFile(string stringfileName, string filetype, List<string> outputfile)
         {
-            Console.WriteLine("fileOps.openfile");
-            Console.WriteLine(stringfileName);
-            //for each string in outputfile[]
-                // write string
-            //endfor
-           
-        }
-        
+            int filenamelength = stringfileName.LastIndexOf(".");
+            Console.Write("fileOps.openfile ");
+            stringfileName = stringfileName.Substring(0, filenamelength);
+
+            string newfilename = stringfileName + "." + filetype;
+            
+            Console.WriteLine(newfilename);
+
+            // Create a string array with the lines of text
+            using (StreamWriter outputFile = new StreamWriter(newfilename))
+                foreach (string line in outputfile)
+                    outputFile.WriteLine(line);
+            }
+
+//            // Sample write file using streamwriter
+//            string[] lines = { "First line", "Second line", "Third line" };
+//
+//            // Set a variable to the My Documents path.
+//            string mydocpath =
+//                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+//
+//           // Write the string array to a new file named "WriteLines.txt".
+//            using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\WriteLines.txt"))
+//           {
+//              foreach (string line in lines)
+//                 outputFile.WriteLine(line);
+//            }
+        [STAThread]
         public List<string> readFile(string stringfileName, string filetype)
         {
             //string[] filestring = { };   tried this first to no avail, found that Lists were better! :-))
@@ -35,8 +56,7 @@ namespace CreateAssemblyFile
             // while ((line = file.ReadLine()) != null) // encapsulates the book’s "hasMoreCommands" and "advance"
             //    string[] filestring = { "hello", "how", "are", "you" };
 
-            Console.WriteLine("fileOps.Readfile");
-            Console.WriteLine(stringfileName);
+            Console.WriteLine("fileOps.Readfile {0}",stringfileName);
 
             try
             {

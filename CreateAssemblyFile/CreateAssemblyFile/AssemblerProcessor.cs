@@ -6,16 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CreateAssemblyFile
-{
+{ 
     class AssemblerProcessor
-    {
+   {
         public List<string> filecontents;
         public List<string> outputfile;
+        // public List<string>outputfile = new List<string>();
         public enum Parser_CommandType { Parser_NO_COMMAND = 0, Parser_A_COMMAND, Parser_C_COMMAND, Parser_L_COMMAND };
 
         public AssemblerProcessor(List<string> filecontents)
         {
             int i = 0;
+            outputfile = new List<string>();
             this.filecontents = filecontents;
             i = filecontents.Count;
             Console.WriteLine("There are {0} lines in the input file", i);
@@ -41,11 +43,11 @@ namespace CreateAssemblyFile
             }
             else
             {
-                if (line.Contains('=') | line.Contains(";"))
-                {
-                    //Console.Write("C Command");
-                    return Parser_CommandType.Parser_C_COMMAND;
-                }
+                if (line.Contains('=') | line.Contains(";") | line.Contains("M") | line.Contains("D") | line.Contains("A") | IsDigitsOrDashOnly(line))
+                    {
+                        //Console.Write("C Command");
+                        return Parser_CommandType.Parser_C_COMMAND;
+                    }
                 else
                 {
                     //Console.Write("no command");
@@ -103,7 +105,8 @@ namespace CreateAssemblyFile
         public void ParseTwo()
         {
             Console.WriteLine(" **************      ParseTwo");
-            List<int> outputfile = new List<int>();
+            // moved following line to class level
+            // List<int> outputfile = new List<int>();
             int ramaddr = 15;
             int romaddr = 0;
 
@@ -156,7 +159,7 @@ namespace CreateAssemblyFile
             return 0;
         }
 
-        private static int ParseCCommand(string line)
+        private static string ParseCCommand(string line)
         {
             int outputCommand = 0; // int rep of binary command
             int compValue = 0;
@@ -202,37 +205,32 @@ namespace CreateAssemblyFile
             outputCommand = 0xE000; // The first 3 bits are 1
             outputCommand |= compValue | destValue | jumpValue;
 
-            return outputCommand;
+            return Convert.ToString(outputCommand, 2).PadLeft(8, '0');
         }
 
-        public static int ParseACommand(string line, int ramaddr, out int ramaddr_out)
+        public static string ParseACommand(string line, int ramaddr, out int ramaddr_out)
         {
 
-
-            // stopping point
-            // todo
-            /* need to convert to binary using :
-             * Convert.ToString(MyVeryOwnByte, 2).PadLeft(8, '0');
-             * 
-             * before writing out binary values.
-             * which isn't done yet.
-
-
             ramaddr_out = ramaddr;
+            int byteout;
             Console.Write("A Command ");
             //is it symbol or numeric?
 
             if (line[1] == '-')
             {
                 //is negative therefore an actual number
-                Console.Write("number");
+                byteout = Convert.ToInt16(line);
+                line = Convert.ToString(byteout, 2).PadLeft(16, '0');
+                Console.WriteLine("Number {0} is binary {1} ", byteout, line);
             }
             else
             {
                 if (IsDigitsOnly(line.Substring(1, line.Length - 1)))
                 {
                     //actual number
-                    Console.Write("number");
+                    byteout = Convert.ToInt16(line.Substring(1, line.Length - 1));
+                    line = Convert.ToString(byteout, 2).PadLeft(16, '0');
+                    Console.WriteLine("Number {0} is binary {1} ", byteout, line);
                 }
                 else
                 {
@@ -251,11 +249,13 @@ namespace CreateAssemblyFile
                         //  add 1 to RAM
                         ramaddr = ramaddr_out + 1;
                     }
-                    SymbolTable.symbolTable.TryGetValue(symbol, out address);
-                    Console.WriteLine("Symbol {0} is at address {1}", symbol, address);
+                    //byteout = SymbolTable.symbolTable.TryGetValue(symbol, out address);
+                    byteout = Convert.ToInt16(address);
+                    line = Convert.ToString(byteout, 2).PadLeft(16, '0');
+                    Console.WriteLine("Number {0} is at address {1} binary {2} ", symbol, byteout, line);
                 }
             }
-            return 0;
+            return line;
         }
 
         static bool IsDigitsOnly(string str)
@@ -263,7 +263,21 @@ namespace CreateAssemblyFile
             foreach (char c in str)
             {
                 if (c < '0' || c > '9')
-                    return false;
+                {
+                        return false;
+                }
+            }
+            return true;
+        }
+        static bool IsDigitsOrDashOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                {
+                    if (c != '-')
+                        return false;
+                }
             }
             return true;
         }
@@ -304,9 +318,12 @@ namespace CreateAssemblyFile
 
     public class CTables
     {
+        public void Test()
+        {
+            Console.WriteLine("CTables.Test");
+        }
 
         public static Dictionary<string, int> compTable = new Dictionary<string, int>()
-
             {
                 // a= 0
                 { "0", 0x2a},
