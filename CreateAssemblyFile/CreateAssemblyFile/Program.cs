@@ -47,12 +47,16 @@ namespace CreateAssemblyFile
                     filename = "pong/Pong.asm";
                     filename = "test.asm";
 
+
+                    // Open file dialog approach from: http://stackoverflow.com/questions/15270387/browse-for-folder-in-console-application
+                    // but changed to the OpenFileDialog 
+
                     OpenFileDialog fileSelectPopUp = new OpenFileDialog();
 
                     fileSelectPopUp.Title = "Select ASM File";
+                    fileSelectPopUp.ValidateNames = false;
                     fileSelectPopUp.Filter = "All ASM FILES (*.asm)|*.asm|All files (*.*)|*.*";
                     fileSelectPopUp.RestoreDirectory = true;
-
                     if (fileSelectPopUp.ShowDialog() == DialogResult.OK)
                     {
                         filename = fileSelectPopUp.FileName;
