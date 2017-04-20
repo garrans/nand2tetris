@@ -41,7 +41,7 @@ namespace JackCompiler
                         {
                             string temp = sr.ReadLine();
                             filelines.Add(temp);
-                            Console.WriteLine("          {0}", filelines[i]);
+                            // Console.WriteLine("          {0}", filelines[i]);
                             i = i + 1;
                         }
                     }

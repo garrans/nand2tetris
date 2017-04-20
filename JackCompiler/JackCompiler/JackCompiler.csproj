@@ -47,6 +47,8 @@
     <Compile Include="fileOps.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TokenElements.cs" />
+    <Compile Include="tokenTables.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

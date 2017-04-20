@@ -36,6 +36,8 @@ namespace JackCompiler
             foreach (FileInfo fileitem in filesToRead)
             {
                 List<string> xmlTokens = new List<string>();
+                List<string> semiParsed = new List<string>();
+                Dictionary<int, string> openTokens = new Dictionary<int, string>();
 
                 Console.WriteLine("    File is: {0}", fileitem.Name);
                 // Compiler Pass 1
@@ -47,16 +49,40 @@ namespace JackCompiler
                 foreach (string inputline in currentFile.readFile(fileitem.FullName, ".jack"))
                 {
                     string currentline = inputline;             // allows reassignment of currentline if we need to
-                    Console.WriteLine(currentline);              //write out foundline
-                    if (!isMultiLine)                           // Not middle of multiline comment
+                    currentline = StripWhiteSpace(currentline, multiLine, out isMultiLine);
+                    multiLine = isMultiLine;
+
+                    if (isMultiLine)                           // Not middle of multiline comment
                     {
-                        // First Step Tokenizer
-                        currentline = StripWhiteSpace(currentline, multiLine, out isMultiLine);
-
+                        Console.Write("Multiline");              // First Step Tokenizer
                     }
+                    if (currentline.Length > 0)
+                    {
 
+                        semiParsed.Add(currentline); // Add non blank entry to xml tokens
+                        // check current line against a dictionary of symbols
+
+                        foreach (string key in tokenTables.tokenTable.Keys)
+                        {
+                            string tempStr1;
+                            Dictionary<int, string> tokensInLine = new Dictionary<int, string>();
+
+                            while (currentline.Contains(key))
+                            {
+                                int index = currentline.IndexOf(key);
+                                tokensInLine.Add(index, key);
+                                //temp1 = currentline.Substring()
+                                currentline = currentline.Substring(index, key.Length);
+                                currentline.Insert(index, "#");
+                                tempStr1 = "#" + key;
+                                currentline.Replace(tempStr1, "#");
+                            }
+                            Console.Write("x");
+                        }
+                    }
                 }
-
+                FileOps outFile = new FileOps();
+                outFile.writeNewFile(fileitem.FullName, "semiparsed", semiParsed);
                 // Do compiler pass2
             
             }
@@ -71,10 +97,7 @@ namespace JackCompiler
         {
             // Strip comments and white space.
             isMultiLine = multiLine;
-            if (isMultiLine)
-            {
-                isMultiLine = false;
-            }
+
             char[] outTemp = new char[codeline.Length]; // need a char array since strings are read-only
                                                     // j is our non-whitespace index
             int j = 0;
@@ -83,18 +106,81 @@ namespace JackCompiler
                 if (codeline[i] == '/')
                 {
                     if (i == codeline.Length - 2) // have to do this first so we don't get an out of bounds
-                                              //error if the "//" is at the end of the codeline
+                                                  //error if the "//" is at the end of the codeline
                     {
                         // end of codeline "//"; done with this codeline
+                        Console.Write("### COMMENT ###");
                         break;
                     }
-                    else if (codeline[i + 1] == '/' | codeline[i+1] =='*')
+                    else if (codeline[i + 1] == '/')
                     {
-                        // not at end of codeline but still a comment, so ignore the rest of the codeline
+                        Console.Write("### COMMENT ###");
                         break;
                     }
-                } // not a comment, keep going with this codeline
-                if (!char.IsWhiteSpace(codeline, i))
+                    else if ( codeline[i+1] =='*')
+                    {
+                        // not at end of codeline but still a comment, so ignore the rest of the codeline\
+                        isMultiLine = true;
+                        
+                        for (int k = 0; k < codeline.Length; k++) // Check for end of block before reporting
+                        {
+                            if (codeline[k] == '*')
+                           {
+                                if (k == (codeline.Length - 1))
+                                {
+                                    Console.Write("### COMMENT ###");
+                                    break;
+                                }
+                                else if (codeline[k+1] == '/') //if at the end of the row watch for  out of bounds
+                                {
+                                    isMultiLine = false;
+                                    Console.Write("### COMMENT ###");
+                                    break;
+                                }
+                            }
+                        }
+                        Console.Write("### COMMENT ###");
+                        break;
+                    }
+                } // not a comment, check for end of comment block, otherwise keep going with this codeline
+                else
+                {
+                    if (isMultiLine)
+                    {
+                        
+                        if (codeline[i] == '*' )
+                        {
+                            if (i == (codeline.Length - 2))
+                            {
+                                if (codeline[i + 1] == '/')
+                                {
+                                    isMultiLine = false;
+                                    Console.Write("### COMMENT ###");
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (i == codeline.Length - 2) // have to do this first so we don't get an out of bounds
+                                                          //error if the "//" is at the end of the codeline
+                            {
+                                // end of codeline "//"; done with this codeline
+                                Console.Write("### COMMENT ###");
+                                break;
+                            }
+                            if (codeline[i]=='*' & codeline[i+1]=='/')
+                            {
+                                isMultiLine = true;
+                                Console.Write("### COMMENT ###");
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                
+                if (!char.IsWhiteSpace(codeline, i) & !isMultiLine)
                 {
                     outTemp[j] = codeline[i]; // only copy if it's not whitespace
                     j++;
@@ -167,7 +253,6 @@ namespace JackCompiler
         }
     }
 
-    class List
-    {
-    }
+
+
 }
