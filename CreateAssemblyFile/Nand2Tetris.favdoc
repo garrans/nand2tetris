@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<Favorites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <folders>
+    <Folder>
+      <name>JackCompiler</name>
+      <folders />
+      <favorites>
+        <Favorite>
+          <name>Program.cs</name>
+          <absolutePath>C:\Users\steph\Dropbox\Documents\Development\github\nand2tetris\JackCompiler\JackCompiler\Program.cs</absolutePath>
+          <position>
+            <line>55</line>
+            <column>21</column>
+            <lineHash>t4wkGO2AAP5H4GJt107Ucj8bMzKsOTU0X2IsCeC54BY=</lineHash>
+          </position>
+        </Favorite>
+        <Favorite>
+          <name>AssemblerProcessor.cs</name>
+          <path>CreateAssemblyFile\AssemblerProcessor.cs</path>
+          <absolutePath>C:\Users\steph\Dropbox\Documents\Development\github\nand2tetris\CreateAssemblyFile\CreateAssemblyFile\AssemblerProcessor.cs</absolutePath>
+          <position>
+            <line>211</line>
+            <column>10</column>
+            <lineHash>DgCWB3DOnLqEPgatPXG3QjiEO3SyHJACsqdCBSg3L/E=</lineHash>
+          </position>
+        </Favorite>
+        <Favorite>
+          <name>.vsvimrc</name>
+          <absolutePath>C:\Users\steph\.vsvimrc</absolutePath>
+          <position>
+            <line>57</line>
+            <column>23</column>
+            <lineHash>YzHogc3f7POSEs34V75NCFNHzVWUSnEbP4rSx4fe1eM=</lineHash>
+          </position>
+        </Favorite>
+      </favorites>
+    </Folder>
+  </folders>
+  <favorites />
+</Favorites>

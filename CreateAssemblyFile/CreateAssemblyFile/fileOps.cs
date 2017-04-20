@@ -32,7 +32,6 @@ namespace CreateAssemblyFile
             using (StreamWriter outputFile = new StreamWriter(newfilename))
                 foreach (string line in outputfile)
                     outputFile.WriteLine(line);
-            }
 
 //            // Sample write file using streamwriter
 //            string[] lines = { "First line", "Second line", "Third line" };
@@ -47,6 +46,9 @@ namespace CreateAssemblyFile
 //              foreach (string line in lines)
 //                 outputFile.WriteLine(line);
 //            }
+
+            }
+
         [STAThread]
         public List<string> readFile(string stringfileName, string filetype)
         {

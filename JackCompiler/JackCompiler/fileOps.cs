@@ -23,6 +23,42 @@ namespace JackCompiler
         }
 
 
+        public List<string> readFile(string stringfileName, string filetype)
+        {
+            //string[] filestring = { };   tried this first to no avail, found that Lists were better! :-))
+
+            List<string> filelines = new List<string>();
+
+            Console.WriteLine("    fileOps.Readfile {0}", stringfileName);
+            try
+            {
+                if (File.Exists(stringfileName))
+                {
+                    using (StreamReader sr = new StreamReader(stringfileName))
+                    {
+                        int i = 0;
+                        while (sr.Peek() >= 0)
+                        {
+                            string temp = sr.ReadLine();
+                            filelines.Add(temp);
+                            Console.WriteLine("          {0}", filelines[i]);
+                            i = i + 1;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("File not found");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The process failed: {0}", e.ToString());
+            }
+            
+            return filelines;
+        }
+
         //open file for writing
         public void writeNewFile(string stringfileName, string filetype, List<string> outputfile)
         {
@@ -41,7 +77,7 @@ namespace JackCompiler
         }
 
 
-        [STAThread]
+        //[STAThread]
         public FileInfo[] getAndReadDirectory(string directory)
         //public List<string> getAndReadDirectory(string directory)
         {
